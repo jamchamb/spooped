@@ -14,7 +14,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 
-import edu.rutgers.jamchamb.spooped.fragments.MainFragment;
+import edu.rutgers.jamchamb.spooped.fragments.CreateGhostFragment;
 import edu.rutgers.jamchamb.spooped.util.LocationUtil;
 
 
@@ -33,11 +33,13 @@ public class MainActivity extends FragmentActivity implements
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new MainFragment())
+                    .add(R.id.container, new CreateGhostFragment())
                     .commit();
         }
 
         mLocationClient = new LocationClient(this, this, this);
+
+        startService(new Intent(this, SpoopService.class));
     }
 
     @Override
