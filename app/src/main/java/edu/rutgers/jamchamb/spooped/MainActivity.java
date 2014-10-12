@@ -1,27 +1,20 @@
 package edu.rutgers.jamchamb.spooped;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
-import edu.rutgers.jamchamb.spooped.fragments.ErrorDialogFragment;
+import edu.rutgers.jamchamb.spooped.fragments.MainFragment;
 
 
 public class MainActivity extends FragmentActivity implements
@@ -39,7 +32,7 @@ public class MainActivity extends FragmentActivity implements
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new MainFragment())
                     .commit();
         }
 
@@ -120,43 +113,6 @@ public class MainActivity extends FragmentActivity implements
         } else {
             LocationUtil.showErrorDialog(this, connectionResult.getErrorCode());
         }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        private static final String TAG = "PlaceholderFragment";
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-            final ToggleButton toggleButton = (ToggleButton) rootView.findViewById(R.id.toggleButton);
-            toggleButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    boolean on = ((ToggleButton)v).isChecked();
-                    toggleService(on);
-                }
-            });
-
-            return rootView;
-        }
-
-        public void toggleService(boolean set) {
-            if(getActivity() == null) {
-                Log.w(TAG, "activity null");
-            }
-            if(set) getActivity().startService(new Intent(getActivity(), SpoopService.class));
-            else getActivity().stopService(new Intent(getActivity(), SpoopService.class));
-        }
-
     }
 
 }

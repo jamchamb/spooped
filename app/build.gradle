@@ -29,4 +29,5 @@ dependencies {
     compile files('libs/android-query-full.0.26.8.jar')
     compile 'org.jdeferred:jdeferred-android-aar:1.2.3'
     compile 'com.google.code.gson:gson:2.3'
+    compile 'org.slf4j:slf4j-android:1.7.7'
 }
