@@ -1,6 +1,7 @@
 package edu.rutgers.jamchamb.spooped;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.location.Location;
@@ -22,7 +23,6 @@ import com.google.android.gms.location.LocationRequest;
 
 import org.jdeferred.DoneCallback;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,6 +33,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         LocationListener {
     private final static String TAG = "SpoopService";
 
+    private SpiritRealm mSpiritRealm;
     private LocationRequest mLocationRequest;
     private LocationClient mLocationClient;
     private WindowManager windowManager;
@@ -56,15 +57,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         // Connect to location services & start getting location updates
         mLocationClient.connect();
 
-        SpiritRealm spiritRealm = new SpiritRealm(this);
-        spiritRealm.getGhosts().done(new DoneCallback<List<Ghost>>() {
-            @Override
-            public void onDone(List<Ghost> result) {
-                for(Ghost ghost: result) {
-                    Log.d(TAG, ghost.getName() + " by " + ghost.getUser());
-                }
-            }
-        });
+        mSpiritRealm = new SpiritRealm(this);
     }
 
     @Override
@@ -92,35 +85,32 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     }
 
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationChanged(final Location location) {
         Log.d(TAG, "Location changed: " + location.toString());
 
-        List<Ghost> ghostList = new ArrayList<Ghost>();
+        final Context servContext = this;
 
-        // Retrieve the ghosties here.. just a test one for now
-        Location testSpot = new Location("ghosts");
-        testSpot.setLatitude(40.502084);
-        testSpot.setLongitude(-74.452370);
+        mSpiritRealm.getGhosts().done(new DoneCallback<List<Ghost>>() {
+            @Override
+            public void onDone(List<Ghost> ghostList) {
+                for(Ghost ghost: ghostList) {
+                    Log.d(TAG, ghost.getName() + " by " + ghost.getUser() + ", lon:" + ghost.getLocation().getLongitude() + " lat: " + ghost.getLocation().getLatitude());
+                }
 
-        Ghost testSpoop = new Ghost();
-        testSpoop.setId("test1234");
-        testSpoop.setName("Spoopy");
-        testSpoop.setUser("pyrocow");
-        testSpoop.setLocation(testSpot);
+                // Check the ghosties
+                for(Ghost ghost: ghostList) {
+                    // If it's within range and hasn't been seen before, display it
+                    if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= 50) {
+                        Log.d(TAG, "Within 50 meters, spooping...");
+                        showGhost(R.drawable.ghost_spoopy);
+                        Toast.makeText(servContext, ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
+                        mGhostCollection.put(ghost.getId(), ghost);
+                        break;
+                    }
+                }
 
-        ghostList.add(testSpoop);
-
-        // Check the ghosties
-        for(Ghost ghost: ghostList) {
-            // If it's within range and hasn't been seen before, display it
-            if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= 50) {
-                Log.d(TAG, "Within 50 meters, spooping...");
-                showGhost(R.drawable.ghost_spoopy);
-                Toast.makeText(this, ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
-                mGhostCollection.put(ghost.getId(), ghost);
-                break;
             }
-        }
+        });
 
     }
 
