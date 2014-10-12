@@ -50,7 +50,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         // Set up location client and request parameters
         mLocationClient = new LocationClient(this, this, this);
         mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setInterval(30 * 1000);
         mLocationRequest.setFastestInterval(10 * 1000);
 
@@ -94,6 +94,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
             @Override
             public void onDone(List<Ghost> ghostList) {
                 for(Ghost ghost: ghostList) {
+                    Log.d(TAG, "Ghost " + ghost.getId());
                     Log.d(TAG, ghost.getName() + " by " + ghost.getUser() + ", lon:" + ghost.getLocation().getLongitude() + " lat: " + ghost.getLocation().getLatitude());
                 }
 
