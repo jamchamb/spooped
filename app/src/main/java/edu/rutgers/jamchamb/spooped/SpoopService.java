@@ -20,9 +20,13 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
+import org.jdeferred.DoneCallback;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import edu.rutgers.jamchamb.spooped.api.SpiritRealm;
 
 public class SpoopService extends Service implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
@@ -31,7 +35,6 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
 
     private LocationRequest mLocationRequest;
     private LocationClient mLocationClient;
-    private Location mLastLocation;
     private WindowManager windowManager;
     private ImageView mSpoopyGhostView;
     private HashMap<String, Ghost> mGhostCollection = new HashMap<String, Ghost>();
@@ -52,6 +55,16 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
 
         // Connect to location services & start getting location updates
         mLocationClient.connect();
+
+        SpiritRealm spiritRealm = new SpiritRealm(this);
+        spiritRealm.getGhosts().done(new DoneCallback<List<Ghost>>() {
+            @Override
+            public void onDone(List<Ghost> result) {
+                for(Ghost ghost: result) {
+                    Log.d(TAG, ghost.getName() + " by " + ghost.getUser());
+                }
+            }
+        });
     }
 
     @Override
@@ -81,7 +94,6 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "Location changed: " + location.toString());
-        //Toast.makeText(this, "Loc: " + location.getLatitude() + "," + location.getLongitude(), Toast.LENGTH_SHORT).show();
 
         List<Ghost> ghostList = new ArrayList<Ghost>();
 
