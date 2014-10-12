@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class SpoopService extends Service implements GooglePlayServicesClient.ConnectionCallbacks,
@@ -33,6 +34,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     private Location mLastLocation;
     private WindowManager windowManager;
     private ImageView mSpoopyGhostView;
+    private HashMap<String, Ghost> mGhostCollection = new HashMap<String, Ghost>();
 
     public SpoopService() {
     }
@@ -98,10 +100,12 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
 
         // Check the ghosties
         for(Ghost ghost: ghostList) {
-            if(location.distanceTo(ghost.getLocation()) <= 50) {
+            // If it's within range and hasn't been seen before, display it
+            if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= 50) {
                 Log.d(TAG, "Within 50 meters, spooping...");
                 showGhost(R.drawable.ghost_spoopy);
                 Toast.makeText(this, ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
+                mGhostCollection.put(ghost.getId(), ghost);
                 break;
             }
         }
@@ -122,7 +126,9 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         // Display the ghost
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        if(mSpoopyGhostView != null) windowManager.removeView(mSpoopyGhostView);
+        // If there's already a ghost displayed, don't do anything
+        if(mSpoopyGhostView != null) return;
+
         mSpoopyGhostView = new ImageView(this);
         mSpoopyGhostView.setImageResource(resId);
 
@@ -146,7 +152,9 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        v.setVisibility(View.GONE);
+                        //v.setVisibility(View.GONE);
+                        windowManager.removeView(mSpoopyGhostView);
+                        mSpoopyGhostView = null;
                         return true;
                     default:
                         return false;
