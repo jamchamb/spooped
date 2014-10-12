@@ -128,9 +128,9 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
      * @param ghost Ghost to display
      */
     private void showGhost(Ghost ghost) {
-
-        // int id = getResources().getIdentifier(args.getString("ghost"), "drawable", "edu.rutgers.jamchamb.spooped");
-        int resId = R.drawable.ghost_one_teal;
+        // Pick ghost to display
+        int resId = getResources().getIdentifier(ghost.getDrawable(), "drawable", "edu.rutgers.jamchamb.spooped");
+        if(resId == 0) resId = R.drawable.ghost_one_teal;
 
         // Display the ghost
         windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
