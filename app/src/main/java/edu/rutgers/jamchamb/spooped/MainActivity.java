@@ -15,12 +15,14 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 
 import edu.rutgers.jamchamb.spooped.fragments.CreateGhostFragment;
+import edu.rutgers.jamchamb.spooped.items.LocationProvider;
 import edu.rutgers.jamchamb.spooped.util.LocationUtil;
 
 
 public class MainActivity extends FragmentActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener {
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        LocationProvider {
 
     private static final String TAG = "MainActivity";
 
@@ -115,6 +117,16 @@ public class MainActivity extends FragmentActivity implements
             }
         } else {
             LocationUtil.showErrorDialog(this, connectionResult.getErrorCode());
+        }
+    }
+
+    @Override
+    public Location getLastLocation() {
+        if(mLocationClient != null && mLocationClient.isConnected()) {
+            mLastLocation = mLocationClient.getLastLocation();
+            return mLastLocation;
+        } else {
+            return null;
         }
     }
 

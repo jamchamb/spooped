@@ -2,7 +2,8 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/create_bg_gradient">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewPager"
@@ -10,19 +11,30 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
-    <LinearLayout
+    <LinearLayout android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
         <EditText
+            android:id="@+id/nameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/nameEditText"
             android:layout_gravity="center_horizontal|center_vertical"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:hint="@string/create_name_hint" />
+            android:layout_margin="20dp"
+            android:singleLine="true"
+            android:maxLength="40"
+            android:hint="@string/create_name_hint"
+            android:textColor="@android:color/white"/>
+
+
+        <Button
+            android:id="@+id/createButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:text="@string/create_ghost_button"
+            android:textColor="@android:color/white"/>
 
     </LinearLayout>
 
