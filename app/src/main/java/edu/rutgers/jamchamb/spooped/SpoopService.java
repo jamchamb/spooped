@@ -52,8 +52,8 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         mLocationClient = new LocationClient(this, this, this);
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setInterval(30 * 1000);
-        mLocationRequest.setFastestInterval(10 * 1000);
+        mLocationRequest.setInterval(10 * 60 * 1000);
+        mLocationRequest.setFastestInterval(60 * 1000);
 
         // Connect to location services & start getting location updates
         mLocationClient.connect();
