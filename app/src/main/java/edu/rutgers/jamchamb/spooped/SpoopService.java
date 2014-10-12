@@ -7,6 +7,7 @@ import android.graphics.PixelFormat;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -118,7 +119,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.w(TAG, "Location services failed to connect");
-        Toast.makeText(this, "Location services failed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Location services failed", Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -127,7 +128,8 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
      */
     private void showGhost(int resId) {
         // Display the ghost
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         // If there's already a ghost displayed, don't do anything
         if(mSpoopyGhostView != null) return;
@@ -148,6 +150,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         params.y = 0;
 
         windowManager.addView(mSpoopyGhostView, params);
+        vibrator.vibrate(new long[]{0l,300l,100l,300l}, -1);
 
         // Make the ghost disappear if you touch it
         mSpoopyGhostView.setOnTouchListener(new View.OnTouchListener() {
@@ -164,6 +167,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
                 }
             }
         });
+
     }
 
 }
