@@ -7,6 +7,7 @@
 
     <!-- Ghost creation screen -->
     <string name="create_name_hint">Ghost\'s name</string>
+    <string name="create_user_hint">Username</string>
     <string name="create_ghost_button">Create Ghost</string>
 
 </resources>

@@ -16,9 +16,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.rutgers.jamchamb.spooped.items.Ghost;
+import edu.rutgers.jamchamb.spooped.items.JSendResponse;
 
 /**
  * Get ghosts from the server.
@@ -83,6 +86,36 @@ public class SpiritRealm {
                     }
                 }
             }
+        });
+
+        return deferred.promise();
+    }
+
+    public Promise<JSendResponse, Exception, Void> submitGhost(Ghost ghost) {
+        final DeferredObject<JSendResponse, Exception, Void> deferred = new DeferredObject<JSendResponse, Exception, Void>();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("name", ghost.getName());
+        params.put("user", ghost.getUser());
+        params.put("longitude", ghost.getLocation().getLongitude());
+        params.put("latitude", ghost.getLocation().getLatitude());
+
+        aq.ajax(BASE_URL+"add_ghost.php", params, JSONObject.class, new AjaxCallback<JSONObject>() {
+
+            @Override
+            public void callback(String url, JSONObject json, AjaxStatus status){
+                if(json == null) {
+                    deferred.reject(new Exception(status.getMessage()));
+                } else {
+                    try {
+                        JSendResponse response = new JSendResponse(json.getString("status"), json.getJSONObject("data").getString("message"));
+                        deferred.resolve(response);
+                    } catch (JSONException e) {
+                        deferred.reject(e);
+                    }
+                }
+            }
+
         });
 
         return deferred.promise();
