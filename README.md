@@ -13,3 +13,7 @@ To install the app, get the `app/build/outputs/apk/app-debug.apk` file and insta
 Either use `adb install -r app-debug.apk` while your phone is plugged in by USB, or download it in
 a browswer on your phone and open it there. You will need to change security settings to allow app
 installs like this. Look for the "Unknown Sources" checkbox under Security.
+
+#### Authors
+Code by James Chambers.
+Artwork by Abby Strobel.
