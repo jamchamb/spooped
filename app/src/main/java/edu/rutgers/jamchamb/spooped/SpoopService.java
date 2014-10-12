@@ -23,7 +23,7 @@ public class SpoopService extends Service {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         spoopyGhost = new ImageView(this);
-        spoopyGhost.setImageResource(R.drawable.spoopy_ghost);
+        spoopyGhost.setImageResource(R.drawable.ghost_spoopy);
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -35,7 +35,7 @@ public class SpoopService extends Service {
 
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
         params.x = 0;
-        params.y = 100;
+        params.y = 0;
 
         windowManager.addView(spoopyGhost, params);
     }

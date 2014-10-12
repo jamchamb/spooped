@@ -6,7 +6,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/spoopy_ghost"
+        android:icon="@drawable/ghost_spoopy"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
