@@ -4,9 +4,10 @@ package edu.rutgers.jamchamb.spooped.fragments;
  * Main display
  */
 
-import android.app.Fragment;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,7 @@ import edu.rutgers.jamchamb.spooped.SpoopService;
  */
 public class MainFragment extends Fragment {
 
-    private static final String TAG = "PlaceholderFragment";
+    private static final String TAG = "MainFragment";
 
     public MainFragment() {
         // Required empty public constructor

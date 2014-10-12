@@ -1,7 +1,7 @@
 package edu.rutgers.jamchamb.spooped.fragments;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +13,7 @@ import edu.rutgers.jamchamb.spooped.R;
  */
 public class CreateGhostFragment extends Fragment {
 
-    private static final String TAG = "PlaceholderFragment";
+    private static final String TAG = "CreateGhostFragment";
 
     public CreateGhostFragment() {
         // Required empty public constructor
