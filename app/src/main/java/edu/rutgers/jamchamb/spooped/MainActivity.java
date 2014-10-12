@@ -2,15 +2,20 @@ package edu.rutgers.jamchamb.spooped;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ToggleButton;
 
 
 public class MainActivity extends Activity {
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,8 @@ public class MainActivity extends Activity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        private static final String TAG = "PlaceholderFragment";
+
         public PlaceholderFragment() {
         }
 
@@ -55,7 +62,27 @@ public class MainActivity extends Activity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            final ToggleButton toggleButton = (ToggleButton) rootView.findViewById(R.id.toggleButton);
+            toggleButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    boolean on = ((ToggleButton)v).isChecked();
+                    toggleService(on);
+                }
+            });
+
             return rootView;
         }
+
+        public void toggleService(boolean set) {
+            if(getActivity() == null) {
+                Log.w(TAG, "activity null");
+            }
+            if(set) getActivity().startService(new Intent(getActivity(), SpoopService.class));
+            else getActivity().stopService(new Intent(getActivity(), SpoopService.class));
+        }
+
     }
+
 }
