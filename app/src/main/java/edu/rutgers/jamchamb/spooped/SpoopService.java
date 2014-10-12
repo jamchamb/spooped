@@ -105,7 +105,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
                     // If it's within range and hasn't been seen before, display it
                     if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= 50) {
                         Log.d(TAG, "Within 50 meters, spooping...");
-                        showGhost(R.drawable.ghost_spoopy);
+                        showGhost(R.drawable.ghost_one_teal);
                         Toast.makeText(servContext, ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
                         mGhostCollection.put(ghost.getId(), ghost);
                         break;
