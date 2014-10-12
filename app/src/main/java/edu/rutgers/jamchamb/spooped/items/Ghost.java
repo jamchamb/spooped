@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped;
+package edu.rutgers.jamchamb.spooped.items;
 
 /**
  * Represents a ghost.

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import edu.rutgers.jamchamb.spooped.api.SpiritRealm;
+import edu.rutgers.jamchamb.spooped.items.Ghost;
 
 public class SpoopService extends Service implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,

@@ -15,6 +15,7 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 
 import edu.rutgers.jamchamb.spooped.fragments.MainFragment;
+import edu.rutgers.jamchamb.spooped.util.LocationUtil;
 
 
 public class MainActivity extends FragmentActivity implements

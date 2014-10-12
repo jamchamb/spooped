@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped;
+package edu.rutgers.jamchamb.spooped.util;
 
 import android.app.Activity;
 import android.app.Dialog;

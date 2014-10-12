@@ -18,7 +18,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.rutgers.jamchamb.spooped.Ghost;
+import edu.rutgers.jamchamb.spooped.items.Ghost;
 
 /**
  * Get ghosts from the server.
