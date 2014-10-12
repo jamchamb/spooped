@@ -32,6 +32,7 @@ public class SpiritRealm {
     private final static String BASE_URL = "http://104.131.98.195/";
 
     private final static int CACHE_ONE_DAY = 1000 * 60 * 60 * 24;
+    private final static int CACHE_NEVER = -1;
 
     private Context context;
     private AQuery aq;
@@ -49,7 +50,7 @@ public class SpiritRealm {
     public Promise<List<Ghost>, Exception, Void> getGhosts() {
         final DeferredObject<List<Ghost>, Exception, Void> deferred = new DeferredObject<List<Ghost>, Exception, Void>();
 
-        aq.ajax(BASE_URL+"ghosts.php", JSONObject.class, SpiritRealm.CACHE_ONE_DAY, new AjaxCallback<JSONObject>() {
+        aq.ajax(BASE_URL+"ghosts.php", JSONObject.class, SpiritRealm.CACHE_NEVER, new AjaxCallback<JSONObject>() {
             @Override
             public void callback(String url, JSONObject json, AjaxStatus ajaxStatus) {
                 if(json == null) {
@@ -97,6 +98,7 @@ public class SpiritRealm {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", ghost.getName());
         params.put("user", ghost.getUser());
+        params.put("drawable", ghost.getDrawable());
         params.put("longitude", ghost.getLocation().getLongitude());
         params.put("latitude", ghost.getLocation().getLatitude());
 

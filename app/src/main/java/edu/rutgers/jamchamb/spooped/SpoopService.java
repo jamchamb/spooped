@@ -103,9 +103,9 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
                 // Check the ghosties
                 for(Ghost ghost: ghostList) {
                     // If it's within range and hasn't been seen before, display it
-                    if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= 50) {
+                    if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= 75) {
                         Log.d(TAG, "Within 50 meters, spooping...");
-                        showGhost(R.drawable.ghost_one_teal);
+                        showGhost(ghost);
                         Toast.makeText(servContext, ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
                         mGhostCollection.put(ghost.getId(), ghost);
                         break;
@@ -125,9 +125,13 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
 
     /**
      * Haunt the user's screen. Spoopy!
-     * @param resId Drawable resource ID for ghost to display
+     * @param ghost Ghost to display
      */
-    private void showGhost(int resId) {
+    private void showGhost(Ghost ghost) {
+
+        // int id = getResources().getIdentifier(args.getString("ghost"), "drawable", "edu.rutgers.jamchamb.spooped");
+        int resId = R.drawable.ghost_one_teal;
+
         // Display the ghost
         windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);

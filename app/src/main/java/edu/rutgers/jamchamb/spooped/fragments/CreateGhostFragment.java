@@ -1,20 +1,27 @@
 package edu.rutgers.jamchamb.spooped.fragments;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
+
+import java.util.ArrayList;
 
 import edu.rutgers.jamchamb.spooped.R;
 import edu.rutgers.jamchamb.spooped.api.SpiritRealm;
@@ -49,10 +56,20 @@ public class CreateGhostFragment extends Fragment {
 
         mSpiritRealm = new SpiritRealm(getActivity());
 
+        ArrayList<String> ghostList = new ArrayList<String>();
+        ghostList.add("ghost_one_teal");
+        ghostList.add("ghost_two_purple");
+        ghostList.add("ghost_three_yellow");
+        ghostList.add("ghost_four_orange");
+
         final ViewPager viewPager = (ViewPager) v.findViewById(R.id.viewPager);
         final EditText nameEditText = (EditText) v.findViewById(R.id.nameEditText);
         final EditText userEditText = (EditText) v.findViewById(R.id.userEditText);
         final Button createButton = (Button) v.findViewById(R.id.createButton);
+
+
+        final GhostPagerAdapter pagerAdapter = new GhostPagerAdapter(getFragmentManager(), ghostList);
+        viewPager.setAdapter(pagerAdapter);
 
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +88,7 @@ public class CreateGhostFragment extends Fragment {
                         Ghost newGhost = new Ghost();
                         newGhost.setName(nameEditText.getText().toString());
                         newGhost.setUser(userEditText.getText().toString());
+                        newGhost.setDrawable(pagerAdapter.getGhostName(viewPager.getCurrentItem()));
                         newGhost.setLocation(lastLocation);
 
                         mSpiritRealm.submitGhost(newGhost).done(new DoneCallback<JSendResponse>() {
@@ -89,6 +107,7 @@ public class CreateGhostFragment extends Fragment {
                             @Override
                             public void onFail(Exception result) {
                                 Toast.makeText(getActivity(), "Oops! Network problem.", Toast.LENGTH_SHORT).show();
+                                Log.w(TAG, result.getMessage());
                             }
                         });
                     } else {
@@ -105,6 +124,70 @@ public class CreateGhostFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mLocationProvider = null;
+    }
+
+    public class GhostPagerAdapter extends FragmentStatePagerAdapter {
+
+        private ArrayList<String> mGhostList;
+
+        public GhostPagerAdapter(FragmentManager fm, ArrayList<String> ghostList) {
+            super(fm);
+            if(ghostList != null) mGhostList = ghostList;
+            else mGhostList = new ArrayList<String>();
+        }
+
+        public String getGhostName(int position) {
+            return mGhostList.get(position);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            Fragment fragment = new GhostImageFragment();
+            Bundle args = new Bundle();
+
+            String ghosty = mGhostList.get(i);
+            if(ghosty != null) {
+                args.putString("ghost", ghosty);
+            }
+
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return mGhostList.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "Ghost " + position;
+        }
+    }
+
+    public static class GhostImageFragment extends Fragment {
+        public static final String ARG_OBJECT = "object";
+
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            // The last two arguments ensure LayoutParams are inflated
+            // properly.
+            View rootView = inflater.inflate(R.layout.ghost_view, container, false);
+            Bundle args = getArguments();
+
+            ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
+
+            if(args.getString("ghost") != null) {
+                int id = getResources().getIdentifier(args.getString("ghost"), "drawable", "edu.rutgers.jamchamb.spooped");
+                if (id != 0) {
+                    Drawable drawable = getResources().getDrawable(id);
+                    imageView.setImageDrawable(drawable);
+                }
+            }
+
+            return rootView;
+        }
     }
 
 }

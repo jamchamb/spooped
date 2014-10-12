@@ -9,6 +9,7 @@ public class Ghost {
     private String id;
     private String name;
     private String user;
+    private String drawable;
     private Location location;
 
     private static class Location {
@@ -54,6 +55,14 @@ public class Ghost {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getDrawable() {
+        return drawable;
+    }
+
+    public void setDrawable(String drawable) {
+        this.drawable = drawable;
     }
 
     public android.location.Location getLocation() {
