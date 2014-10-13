@@ -1,9 +1,10 @@
 package edu.rutgers.jamchamb.spooped.items;
 
 /**
- * Created by James on 10/12/2014.
+ * JSend response. Contains a status and message.
  */
 public class JSendResponse {
+
     String status;
     String message;
 
@@ -18,6 +19,14 @@ public class JSendResponse {
 
     public String getMessage() {
         return message;
+    }
+
+    public boolean succeeded() {
+        return "success".equals(status);
+    }
+
+    public boolean failed() {
+        return !succeeded();
     }
 
 }

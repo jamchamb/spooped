@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,7 +37,6 @@ public class CreateGhostFragment extends Fragment {
 
     private LocationProvider mLocationProvider;
     private SpiritRealm mSpiritRealm;
-    private PagerAdapter mPagerAdapter;
 
     public CreateGhostFragment() {
         // Required empty public constructor
@@ -74,7 +72,6 @@ public class CreateGhostFragment extends Fragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 // Make sure username and ghost name are set
                 if(nameEditText.getText().toString().isEmpty() || userEditText.getText().toString().isEmpty()) {
                     Toast.makeText(getActivity(), "Set both names!", Toast.LENGTH_SHORT).show();
@@ -94,7 +91,7 @@ public class CreateGhostFragment extends Fragment {
                         mSpiritRealm.submitGhost(newGhost).done(new DoneCallback<JSendResponse>() {
                             @Override
                             public void onDone(JSendResponse result) {
-                                if(result.getStatus().equals("success")) {
+                                if(result.succeeded()) {
                                     Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
                                     nameEditText.setText(null);
                                     userEditText.setText(null);
@@ -105,9 +102,9 @@ public class CreateGhostFragment extends Fragment {
                             }
                         }).fail(new FailCallback<Exception>() {
                             @Override
-                            public void onFail(Exception result) {
+                            public void onFail(Exception exception) {
                                 Toast.makeText(getActivity(), "Oops! Network problem.", Toast.LENGTH_SHORT).show();
-                                Log.w(TAG, result.getMessage());
+                                Log.w(TAG, exception.getMessage());
                             }
                         });
                     } else {
@@ -163,10 +160,10 @@ public class CreateGhostFragment extends Fragment {
         public CharSequence getPageTitle(int position) {
             return "Ghost " + position;
         }
+
     }
 
     public static class GhostImageFragment extends Fragment {
-        public static final String ARG_OBJECT = "object";
 
         @Override
         public View onCreateView(LayoutInflater inflater,
@@ -188,6 +185,7 @@ public class CreateGhostFragment extends Fragment {
 
             return rootView;
         }
+
     }
 
 }

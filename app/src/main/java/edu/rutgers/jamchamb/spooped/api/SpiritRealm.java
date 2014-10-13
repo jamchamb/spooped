@@ -24,23 +24,26 @@ import edu.rutgers.jamchamb.spooped.items.Ghost;
 import edu.rutgers.jamchamb.spooped.items.JSendResponse;
 
 /**
- * Get ghosts from the server.
+ * Server API
+ * @author James Chambers
  */
 public class SpiritRealm {
 
     private final static String TAG = "SpiritRealm";
+
     private final static String BASE_URL = "http://104.131.98.195/";
 
     private final static int CACHE_ONE_DAY = 1000 * 60 * 60 * 24;
     private final static int CACHE_NEVER = -1;
 
-    private Context context;
-    private AQuery aq;
-
+    private Context mContext;
+    private AQuery mAQ;
+    private Gson mGson;
 
     public SpiritRealm(Context context) {
-        this.context = context;
-        this.aq = new AQuery(context);
+        this.mContext = context;
+        this.mAQ = new AQuery(context);
+        this.mGson = new Gson();
     }
 
     /**
@@ -50,10 +53,10 @@ public class SpiritRealm {
     public Promise<List<Ghost>, Exception, Void> getGhosts() {
         final DeferredObject<List<Ghost>, Exception, Void> deferred = new DeferredObject<List<Ghost>, Exception, Void>();
 
-        aq.ajax(BASE_URL+"ghosts.php", JSONObject.class, SpiritRealm.CACHE_NEVER, new AjaxCallback<JSONObject>() {
+        mAQ.ajax(BASE_URL + "ghosts.php", JSONObject.class, SpiritRealm.CACHE_NEVER, new AjaxCallback<JSONObject>() {
             @Override
             public void callback(String url, JSONObject json, AjaxStatus ajaxStatus) {
-                if(json == null) {
+                if (json == null) {
                     // Bad response, don't cache it
                     ajaxStatus.invalidate();
                     deferred.reject(new Exception(ajaxStatus.getMessage()));
@@ -62,14 +65,13 @@ public class SpiritRealm {
                     try {
                         // Get JSend response status
                         String status = json.getString("status");
-                        if(status.equals("success")) {
+                        if (status.equals("success")) {
                             JSONArray ghosts = json.getJSONObject("data").getJSONArray("ghosts");
                             ArrayList<Ghost> ghostResults = new ArrayList<Ghost>(ghosts.length());
 
                             // Convert the ghost JSON array to a list of native ghost objects
-                            Gson gson = new Gson();
-                            for(int i = 0; i < ghosts.length(); i++) {
-                                Ghost curGhost = gson.fromJson(ghosts.getJSONObject(i).toString(), Ghost.class);
+                            for (int i = 0; i < ghosts.length(); i++) {
+                                Ghost curGhost = mGson.fromJson(ghosts.getJSONObject(i).toString(), Ghost.class);
                                 ghostResults.add(curGhost);
                             }
 
@@ -92,9 +94,15 @@ public class SpiritRealm {
         return deferred.promise();
     }
 
+    /**
+     * Submit a new ghost to the server.
+     * @param ghost Ghost to submit
+     * @return Promise for a JSend response with success or fail status
+     */
     public Promise<JSendResponse, Exception, Void> submitGhost(Ghost ghost) {
         final DeferredObject<JSendResponse, Exception, Void> deferred = new DeferredObject<JSendResponse, Exception, Void>();
 
+        // Set up POST parameters
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", ghost.getName());
         params.put("user", ghost.getUser());
@@ -102,11 +110,12 @@ public class SpiritRealm {
         params.put("longitude", ghost.getLocation().getLongitude());
         params.put("latitude", ghost.getLocation().getLatitude());
 
-        aq.ajax(BASE_URL+"add_ghost.php", params, JSONObject.class, new AjaxCallback<JSONObject>() {
+        // Make the POST request and get JSend response
+        mAQ.ajax(BASE_URL + "add_ghost.php", params, JSONObject.class, new AjaxCallback<JSONObject>() {
 
             @Override
-            public void callback(String url, JSONObject json, AjaxStatus status){
-                if(json == null) {
+            public void callback(String url, JSONObject json, AjaxStatus status) {
+                if (json == null) {
                     deferred.reject(new Exception(status.getMessage()));
                 } else {
                     try {
