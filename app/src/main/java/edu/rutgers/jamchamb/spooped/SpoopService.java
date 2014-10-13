@@ -35,6 +35,8 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         LocationListener {
     private final static String TAG = "SpoopService";
 
+    private final static int NEARBY_METERS = 25;
+
     private SpiritRealm mSpiritRealm;
     private LocationRequest mLocationRequest;
     private LocationClient mLocationClient;
@@ -90,23 +92,17 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     public void onLocationChanged(final Location location) {
         Log.d(TAG, "Location changed: " + location.toString());
 
-        final Context servContext = this;
-
         mSpiritRealm.getGhosts().done(new DoneCallback<List<Ghost>>() {
             @Override
             public void onDone(List<Ghost> ghostList) {
-                for(Ghost ghost: ghostList) {
-                    Log.d(TAG, "Ghost " + ghost.getId());
-                    Log.d(TAG, ghost.getName() + " by " + ghost.getUser() + ", lon:" + ghost.getLocation().getLongitude() + " lat: " + ghost.getLocation().getLatitude());
-                }
-
                 // Check the ghosties
                 for(Ghost ghost: ghostList) {
+                    if(BuildConfig.DEBUG) Log.v(TAG, ghost.getName() + ": Distance " + location.distanceTo(ghost.getLocation()));
+
                     // If it's within range and hasn't been seen before, display it
-                    if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= 75) {
-                        Log.d(TAG, "Within 50 meters, spooping...");
+                    if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= NEARBY_METERS) {
+                        Log.d(TAG, "Ghost within " + NEARBY_METERS + " meters; spooping!");
                         showGhost(ghost);
-                        Toast.makeText(servContext, ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
                         mGhostCollection.put(ghost.getId(), ghost);
                         break;
                     }
@@ -127,7 +123,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
      * Haunt the user's screen. Spoopy!
      * @param ghost Ghost to display
      */
-    private void showGhost(Ghost ghost) {
+    private void showGhost(final Ghost ghost) {
         // Pick ghost to display
         int resId = getResources().getIdentifier(ghost.getDrawable(), "drawable", "edu.rutgers.jamchamb.spooped");
         if(resId == 0) resId = R.drawable.ghost_one_teal;
@@ -163,7 +159,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        //v.setVisibility(View.GONE);
+                        Toast.makeText(v.getContext(), ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
                         windowManager.removeView(mSpoopyGhostView);
                         mSpoopyGhostView = null;
                         return true;
