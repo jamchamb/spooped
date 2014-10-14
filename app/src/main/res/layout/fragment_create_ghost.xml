@@ -7,6 +7,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="?android:attr/actionBarSize"
         android:layout_gravity="center"
         android:src="@drawable/logo_title"/>
 
@@ -36,7 +37,9 @@
             android:singleLine="true"
             android:maxLength="40"
             android:hint="@string/create_name_hint"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white"
+            android:textColorHighlight="#ff9876aa"
+            android:textColorHint="#ffa01192" />
 
         <EditText
             android:id="@+id/userEditText"
@@ -47,7 +50,9 @@
             android:singleLine="true"
             android:maxLength="40"
             android:hint="@string/create_user_hint"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white"
+            android:textColorHighlight="#ff9876aa"
+            android:textColorHint="#ffa01192" />
 
         <Button
             android:id="@+id/createButton"
