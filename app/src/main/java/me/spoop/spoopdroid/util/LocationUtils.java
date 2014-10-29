@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped.util;
+package me.spoop.spoopdroid.util;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -7,7 +7,7 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import edu.rutgers.jamchamb.spooped.fragments.ErrorDialogFragment;
+import me.spoop.spoopdroid.fragments.ErrorDialogFragment;
 
 public class LocationUtils {
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;

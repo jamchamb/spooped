@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped;
+package me.spoop.spoopdroid;
 
 import android.app.Service;
 import android.content.Context;
@@ -27,8 +27,8 @@ import org.jdeferred.DoneCallback;
 import java.util.HashMap;
 import java.util.List;
 
-import edu.rutgers.jamchamb.spooped.api.SpiritRealm;
-import edu.rutgers.jamchamb.spooped.items.Ghost;
+import me.spoop.spoopdroid.api.SpiritRealm;
+import me.spoop.spoopdroid.items.Ghost;
 
 public class SpoopService extends Service implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,

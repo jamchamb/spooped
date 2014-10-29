@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped.api;
+package me.spoop.spoopdroid.api;
 
 import android.content.Context;
 import android.util.Log;
@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.rutgers.jamchamb.spooped.items.Ghost;
-import edu.rutgers.jamchamb.spooped.items.JSendResponse;
+import me.spoop.spoopdroid.items.Ghost;
+import me.spoop.spoopdroid.items.JSendResponse;
 
 /**
  * Server API

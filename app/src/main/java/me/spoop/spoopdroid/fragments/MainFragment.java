@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped.fragments;
+package me.spoop.spoopdroid.fragments;
 
 /**
  * Main display
@@ -14,8 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ToggleButton;
 
-import edu.rutgers.jamchamb.spooped.R;
-import edu.rutgers.jamchamb.spooped.SpoopService;
+import me.spoop.spoopdroid.R;
+import me.spoop.spoopdroid.SpoopService;
 
 /**
  * Main screen

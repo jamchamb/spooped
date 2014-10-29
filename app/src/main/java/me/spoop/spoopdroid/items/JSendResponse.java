@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped.items;
+package me.spoop.spoopdroid.items;
 
 /**
  * JSend response. Contains a status and message.

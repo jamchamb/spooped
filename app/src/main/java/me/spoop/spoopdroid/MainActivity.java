@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped;
+package me.spoop.spoopdroid;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,9 +14,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 
-import edu.rutgers.jamchamb.spooped.fragments.CreateGhostFragment;
-import edu.rutgers.jamchamb.spooped.items.LocationProvider;
-import edu.rutgers.jamchamb.spooped.util.LocationUtils;
+import me.spoop.spoopdroid.fragments.CreateGhostFragment;
+import me.spoop.spoopdroid.items.LocationProvider;
+import me.spoop.spoopdroid.util.LocationUtils;
 
 
 public class MainActivity extends FragmentActivity implements

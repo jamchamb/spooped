@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped.fragments;
+package me.spoop.spoopdroid.fragments;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -22,12 +22,12 @@ import org.jdeferred.FailCallback;
 
 import java.util.ArrayList;
 
-import edu.rutgers.jamchamb.spooped.BuildConfig;
-import edu.rutgers.jamchamb.spooped.R;
-import edu.rutgers.jamchamb.spooped.api.SpiritRealm;
-import edu.rutgers.jamchamb.spooped.items.Ghost;
-import edu.rutgers.jamchamb.spooped.items.JSendResponse;
-import edu.rutgers.jamchamb.spooped.items.LocationProvider;
+import me.spoop.spoopdroid.BuildConfig;
+import me.spoop.spoopdroid.R;
+import me.spoop.spoopdroid.api.SpiritRealm;
+import me.spoop.spoopdroid.items.Ghost;
+import me.spoop.spoopdroid.items.JSendResponse;
+import me.spoop.spoopdroid.items.LocationProvider;
 
 /**
  * Ghost creation screen

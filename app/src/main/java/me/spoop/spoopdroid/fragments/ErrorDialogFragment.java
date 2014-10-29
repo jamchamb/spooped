@@ -1,4 +1,4 @@
-package edu.rutgers.jamchamb.spooped.fragments;
+package me.spoop.spoopdroid.fragments;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
