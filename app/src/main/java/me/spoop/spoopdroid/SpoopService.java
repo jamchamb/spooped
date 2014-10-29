@@ -12,8 +12,12 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -41,7 +45,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     private LocationRequest mLocationRequest;
     private LocationClient mLocationClient;
     private WindowManager windowManager;
-    private ImageView mSpoopyGhostView;
+    private ViewGroup mViewGroup;
     private HashMap<String, Ghost> mGhostCollection = new HashMap<String, Ghost>();
 
     public SpoopService() {
@@ -69,7 +73,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         super.onDestroy();
 
         mLocationClient.disconnect();
-        if(mSpoopyGhostView != null) windowManager.removeView(mSpoopyGhostView);
+        if(mViewGroup != null) windowManager.removeView(mViewGroup);
     }
 
     @Override
@@ -138,11 +142,21 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         // If there's already a ghost displayed, don't do anything
-        if(mSpoopyGhostView != null) return;
+        if(mViewGroup != null) return;
 
-        mSpoopyGhostView = new ImageView(this);
-        mSpoopyGhostView.setImageResource(resId);
+        ImageView spoopyGhostView = new ImageView(this);
+        spoopyGhostView.setImageResource(resId);
+        spoopyGhostView.setAlpha(0.85f);
 
+        // Make it spoopy and floaty
+        Animation floatAnimation = AnimationUtils.loadAnimation(spoopyGhostView.getContext(), R.anim.ghost_float);
+        spoopyGhostView.startAnimation(floatAnimation);
+
+        // Wraps the ghost view so that animations work
+        mViewGroup = new LinearLayout(this);
+        mViewGroup.addView(spoopyGhostView);
+
+        // Layout parameters for window manager
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -155,18 +169,18 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
         params.x = 0;
         params.y = 0;
 
-        windowManager.addView(mSpoopyGhostView, params);
+        windowManager.addView(mViewGroup, params);
         vibrator.vibrate(new long[]{0l,300l,100l,300l}, -1);
 
         // Make the ghost disappear if you touch it
-        mSpoopyGhostView.setOnTouchListener(new View.OnTouchListener() {
+        spoopyGhostView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         Toast.makeText(v.getContext(), ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
-                        windowManager.removeView(mSpoopyGhostView);
-                        mSpoopyGhostView = null;
+                        windowManager.removeView(mViewGroup);
+                        mViewGroup = null;
                         return true;
                     default:
                         return false;
@@ -174,6 +188,6 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
             }
         });
 
-    }
+   }
 
 }

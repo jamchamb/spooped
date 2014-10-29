@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -181,6 +183,9 @@ public class CreateGhostFragment extends Fragment {
                 if (id != 0) {
                     Drawable drawable = getResources().getDrawable(id);
                     imageView.setImageDrawable(drawable);
+
+                    Animation floatAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.ghost_float);
+                    imageView.startAnimation(floatAnimation);
                 }
             }
 
