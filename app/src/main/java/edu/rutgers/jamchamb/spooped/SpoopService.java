@@ -92,14 +92,19 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     public void onLocationChanged(final Location location) {
         Log.d(TAG, "Location changed: " + location.toString());
 
-        mSpiritRealm.getGhosts().done(new DoneCallback<List<Ghost>>() {
+        mSpiritRealm.getGhosts(location.getLongitude(), location.getLatitude()).done(new DoneCallback<List<Ghost>>() {
             @Override
             public void onDone(List<Ghost> ghostList) {
-                // Check the ghosties
-                for(Ghost ghost: ghostList) {
-                    if(BuildConfig.DEBUG) Log.v(TAG, ghost.getName() + ": Distance " + location.distanceTo(ghost.getLocation()));
+                if(BuildConfig.DEBUG) {
+                    Log.d(TAG, "Got " + ghostList.size() + " ghosts in range");
+                    for(Ghost ghost: ghostList) {
+                        Log.v(TAG, ghost.getName() + ": Distance " + location.distanceTo(ghost.getLocation()) +
+                                (mGhostCollection.get(ghost.getId()) != null ? " (seen)" : ""));
+                    }
+                }
 
-                    // If it's within range and hasn't been seen before, display it
+                // Check the ghosties. Display ones that haven't been seen before
+                for(Ghost ghost: ghostList) {
                     if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= NEARBY_METERS) {
                         Log.d(TAG, "Ghost within " + NEARBY_METERS + " meters; spooping!");
                         showGhost(ghost);

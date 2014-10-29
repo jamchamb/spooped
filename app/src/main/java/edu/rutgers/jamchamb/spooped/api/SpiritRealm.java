@@ -31,10 +31,12 @@ public class SpiritRealm {
 
     private final static String TAG = "SpiritRealm";
 
-    private final static String BASE_URL = "http://104.131.98.195/";
+    private final static String BASE_URL = "http://spoop.me/";
 
-    private final static int CACHE_ONE_DAY = 1000 * 60 * 60 * 24;
-    private final static int CACHE_NEVER = -1;
+    private final static int CACHE_NEVER = -1; // refreshes cache
+    private final static int CACHE_ONE_MINUTE = 1000 * 60;
+    private final static int CACHE_ONE_HOUR = CACHE_ONE_MINUTE * 60;
+    private final static int CACHE_ONE_DAY = CACHE_ONE_HOUR * 24;
 
     private Context mContext;
     private AQuery mAQ;
@@ -54,6 +56,62 @@ public class SpiritRealm {
         final DeferredObject<List<Ghost>, Exception, Void> deferred = new DeferredObject<List<Ghost>, Exception, Void>();
 
         mAQ.ajax(BASE_URL + "ghosts.php", JSONObject.class, SpiritRealm.CACHE_NEVER, new AjaxCallback<JSONObject>() {
+            @Override
+            public void callback(String url, JSONObject json, AjaxStatus ajaxStatus) {
+                if (json == null) {
+                    // Bad response, don't cache it
+                    ajaxStatus.invalidate();
+                    deferred.reject(new Exception(ajaxStatus.getMessage()));
+                } else {
+                    // Got a JSON response
+                    try {
+                        // Get JSend response status
+                        String status = json.getString("status");
+                        if (status.equals("success")) {
+                            JSONArray ghosts = json.getJSONObject("data").getJSONArray("ghosts");
+                            ArrayList<Ghost> ghostResults = new ArrayList<Ghost>(ghosts.length());
+
+                            // Convert the ghost JSON array to a list of native ghost objects
+                            for (int i = 0; i < ghosts.length(); i++) {
+                                Ghost curGhost = mGson.fromJson(ghosts.getJSONObject(i).toString(), Ghost.class);
+                                ghostResults.add(curGhost);
+                            }
+
+                            // Resolve with the native ghost list
+                            deferred.resolve(ghostResults);
+                        } else {
+                            deferred.reject(new Exception("server response: " + status));
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, e.getMessage());
+                        deferred.reject(e);
+                    } catch (JsonSyntaxException e) {
+                        Log.e(TAG, e.getMessage());
+                        deferred.reject(e);
+                    }
+                }
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * Get all ghosts within 25 meters of a specific location.
+     * @param longitude Longitude
+     * @param latitude Latitude
+     * @return Promise for list of ghosts near given location
+     */
+    public Promise<List<Ghost>, Exception, Void> getGhosts(double longitude, double latitude) {
+        final DeferredObject<List<Ghost>, Exception, Void> deferred = new DeferredObject<List<Ghost>, Exception, Void>();
+
+        // Set up POST parameters
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("longitude", Double.toString(longitude));
+        params.put("latitude", Double.toString(latitude));
+
+        // Make the POST request and get JSend response
+        mAQ.ajax(BASE_URL + "loc_query.php", params, JSONObject.class, new AjaxCallback<JSONObject>() {
             @Override
             public void callback(String url, JSONObject json, AjaxStatus ajaxStatus) {
                 if (json == null) {
