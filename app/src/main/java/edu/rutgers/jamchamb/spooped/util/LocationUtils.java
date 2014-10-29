@@ -9,7 +9,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import edu.rutgers.jamchamb.spooped.fragments.ErrorDialogFragment;
 
-public class LocationUtil {
+public class LocationUtils {
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     public static boolean servicesConnected(Activity activity) {
@@ -34,7 +34,7 @@ public class LocationUtil {
         Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
                 resultCode,
                 activity,
-                LocationUtil.CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
         // If Google Play services can provide an error dialog
         if (errorDialog != null) {

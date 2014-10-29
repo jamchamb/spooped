@@ -16,7 +16,7 @@ import com.google.android.gms.location.LocationClient;
 
 import edu.rutgers.jamchamb.spooped.fragments.CreateGhostFragment;
 import edu.rutgers.jamchamb.spooped.items.LocationProvider;
-import edu.rutgers.jamchamb.spooped.util.LocationUtil;
+import edu.rutgers.jamchamb.spooped.util.LocationUtils;
 
 
 public class MainActivity extends FragmentActivity implements
@@ -79,7 +79,7 @@ public class MainActivity extends FragmentActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Decide what to do based on the original request code
         switch (requestCode) {
-            case LocationUtil.CONNECTION_FAILURE_RESOLUTION_REQUEST :
+            case LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST :
                 switch (resultCode) {
                     case Activity.RESULT_OK :
                         // If the result code is Activity.RESULT_OK, try the request again
@@ -109,12 +109,12 @@ public class MainActivity extends FragmentActivity implements
     public void onConnectionFailed(ConnectionResult connectionResult) {
         if(connectionResult.hasResolution()) {
             try {
-                connectionResult.startResolutionForResult(this, LocationUtil.CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                connectionResult.startResolutionForResult(this, LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
             } catch (IntentSender.SendIntentException e) {
                 Log.e(TAG, Log.getStackTraceString(e));
             }
         } else {
-            LocationUtil.showErrorDialog(this, connectionResult.getErrorCode());
+            LocationUtils.showErrorDialog(this, connectionResult.getErrorCode());
         }
     }
 
