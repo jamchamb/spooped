@@ -130,7 +130,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
      */
     private void showGhost(final Ghost ghost) {
         // Pick ghost to display
-        int resId = getResources().getIdentifier(ghost.getDrawable(), "drawable", "edu.rutgers.jamchamb.spooped");
+        int resId = getResources().getIdentifier(ghost.getDrawable(), "drawable", BuildConfig.PACKAGE_NAME);
         if(resId == 0) resId = R.drawable.ghost_one_teal;
 
         // Display the ghost

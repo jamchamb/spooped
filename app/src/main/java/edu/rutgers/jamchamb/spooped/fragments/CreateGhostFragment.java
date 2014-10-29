@@ -22,6 +22,7 @@ import org.jdeferred.FailCallback;
 
 import java.util.ArrayList;
 
+import edu.rutgers.jamchamb.spooped.BuildConfig;
 import edu.rutgers.jamchamb.spooped.R;
 import edu.rutgers.jamchamb.spooped.api.SpiritRealm;
 import edu.rutgers.jamchamb.spooped.items.Ghost;
@@ -176,7 +177,7 @@ public class CreateGhostFragment extends Fragment {
             ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
 
             if(args.getString("ghost") != null) {
-                int id = getResources().getIdentifier(args.getString("ghost"), "drawable", "edu.rutgers.jamchamb.spooped");
+                int id = getResources().getIdentifier(args.getString("ghost"), "drawable", BuildConfig.PACKAGE_NAME);
                 if (id != 0) {
                     Drawable drawable = getResources().getDrawable(id);
                     imageView.setImageDrawable(drawable);
