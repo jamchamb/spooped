@@ -80,31 +80,29 @@ public class MainActivity extends FragmentActivity implements
         // Decide what to do based on the original request code
         switch (requestCode) {
             case LocationUtil.CONNECTION_FAILURE_RESOLUTION_REQUEST :
-            /*
-             * If the result code is Activity.RESULT_OK, try
-             * to connect again
-             */
                 switch (resultCode) {
                     case Activity.RESULT_OK :
-                    /*
-                     * Try the request again
-                     */
-                        Log.d(TAG, "Result OK");
+                        // If the result code is Activity.RESULT_OK, try the request again
+                        mLocationClient.connect();
+                        Log.d(TAG, "Location services connection resolution: Result OK");
                         break;
                 }
+                break;
+            default:
+                Log.d(TAG, "Location services connection resolution: result code " + resultCode);
         }
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d("Location Services", "Connected");
+        Log.i(TAG, "Location services connected");
         mLastLocation = mLocationClient.getLastLocation();
-        Log.d(TAG, "Location: " + mLastLocation.toString());
+        if(BuildConfig.DEBUG) Log.d(TAG, "Location: " + mLastLocation.toString());
     }
 
     @Override
     public void onDisconnected() {
-        Log.d("Location Services", "Disconnected");
+        Log.i(TAG, "Location services disconnected");
     }
 
     @Override

@@ -1,7 +1,7 @@
 package edu.rutgers.jamchamb.spooped.items;
 
 /**
- * Represents a ghost.
+ * A spoopy little ghost.
  * @author James Chambers
  */
 public class Ghost {
