@@ -10,7 +10,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import me.spoop.spoopdroid.fragments.ErrorDialogFragment;
 
 public class LocationUtils {
-    public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    public final static int REQUEST_RESOLVE_ERROR = 1001;
 
     public static boolean servicesConnected(Activity activity) {
         // Check that Google Play services is available
@@ -34,7 +34,7 @@ public class LocationUtils {
         Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
                 resultCode,
                 activity,
-                LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                LocationUtils.REQUEST_RESOLVE_ERROR);
 
         // If Google Play services can provide an error dialog
         if (errorDialog != null) {

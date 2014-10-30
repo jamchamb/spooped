@@ -11,8 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import me.spoop.spoopdroid.fragments.CreateGhostFragment;
 import me.spoop.spoopdroid.items.LocationProvider;
@@ -20,14 +20,17 @@ import me.spoop.spoopdroid.util.LocationUtils;
 
 
 public class MainActivity extends FragmentActivity implements
-        GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
         LocationProvider {
 
     private static final String TAG = "MainActivity";
 
-    private LocationClient mLocationClient;
+    private static final String STATE_RESOLVING_ERROR = "resolving_error";
+
+    private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private boolean mResolvingError = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,23 +40,37 @@ public class MainActivity extends FragmentActivity implements
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new CreateGhostFragment())
                     .commit();
+        } else {
+            mResolvingError = savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
         }
 
-        mLocationClient = new LocationClient(this, this, this);
+        // Start up location services
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
+        // Launch ghost detecting service in background
         startService(new Intent(this, SpoopService.class));
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mLocationClient.connect();
+        mGoogleApiClient.connect();
     }
 
     @Override
     public void onStop() {
-        mLocationClient.disconnect();
+        mGoogleApiClient.disconnect();
         super.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_RESOLVING_ERROR, mResolvingError);
     }
 
     @Override
@@ -76,55 +93,69 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Decide what to do based on the original request code
-        switch (requestCode) {
-            case LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST :
-                switch (resultCode) {
-                    case Activity.RESULT_OK :
-                        // If the result code is Activity.RESULT_OK, try the request again
-                        mLocationClient.connect();
-                        Log.d(TAG, "Location services connection resolution: Result OK");
-                        break;
-                }
-                break;
-            default:
-                Log.d(TAG, "Location services connection resolution: result code " + resultCode);
+    public Location getLastLocation() {
+        if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            return mLastLocation;
+        } else {
+            return null;
         }
     }
 
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "Location services connected");
-        mLastLocation = mLocationClient.getLastLocation();
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if(BuildConfig.DEBUG) Log.d(TAG, "Location: " + mLastLocation.toString());
     }
 
     @Override
-    public void onDisconnected() {
-        Log.i(TAG, "Location services disconnected");
+    public void onConnectionSuspended(int cause) {
+        Log.w(TAG, "Google API client connection suspended - cause " + cause);
+        if(!mGoogleApiClient.isConnecting()) mGoogleApiClient.connect();
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if(connectionResult.hasResolution()) {
+    public void onConnectionFailed(ConnectionResult result) {
+        if (mResolvingError) {
+            return;
+        } else if (result.hasResolution()) {
             try {
-                connectionResult.startResolutionForResult(this, LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                mResolvingError = true;
+                result.startResolutionForResult(this, LocationUtils.REQUEST_RESOLVE_ERROR);
             } catch (IntentSender.SendIntentException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+                Log.e(TAG, e.getMessage());
+                mGoogleApiClient.connect(); // try to connect again
             }
         } else {
-            LocationUtils.showErrorDialog(this, connectionResult.getErrorCode());
+            LocationUtils.showErrorDialog(this, result.getErrorCode());
+            mResolvingError = true;
         }
     }
 
+    public void onDialogDismissed() {
+        mResolvingError = false;
+    }
+
     @Override
-    public Location getLastLocation() {
-        if(mLocationClient != null && mLocationClient.isConnected()) {
-            mLastLocation = mLocationClient.getLastLocation();
-            return mLastLocation;
-        } else {
-            return null;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Decide what to do based on the original request code
+        switch (requestCode) {
+            case LocationUtils.REQUEST_RESOLVE_ERROR:
+                mResolvingError = false;
+                switch (resultCode) {
+                    case Activity.RESULT_OK :
+                        // If the result code is Activity.RESULT_OK, try the request again
+                        if(!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
+                            Log.d(TAG, "Location services: Result OK, reconnecting...");
+                            mGoogleApiClient.connect();
+                        }
+                        break;
+                }
+                break;
+
+            default:
+                Log.d(TAG, "Location services connection resolution: result code " + resultCode);
         }
     }
 
