@@ -21,10 +21,10 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import org.jdeferred.DoneCallback;
 
@@ -34,8 +34,9 @@ import java.util.List;
 import me.spoop.spoopdroid.api.SpiritRealm;
 import me.spoop.spoopdroid.items.Ghost;
 
-public class SpoopService extends Service implements GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener,
+public class SpoopService extends Service implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     private final static String TAG = "SpoopService";
 
@@ -43,27 +44,31 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
 
     private SpiritRealm mSpiritRealm;
     private LocationRequest mLocationRequest;
-    private LocationClient mLocationClient;
+    private GoogleApiClient mGoogleApiClient;
     private WindowManager windowManager;
     private ViewGroup mViewGroup;
     private HashMap<String, Ghost> mGhostCollection = new HashMap<String, Ghost>();
 
-    public SpoopService() {
-    }
+    public SpoopService() {}
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         // Set up location client and request parameters
-        mLocationClient = new LocationClient(this, this, this);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setInterval(10 * 60 * 1000);
         mLocationRequest.setFastestInterval(60 * 1000);
 
         // Connect to location services & start getting location updates
-        mLocationClient.connect();
+        mGoogleApiClient.connect();
 
         mSpiritRealm = new SpiritRealm(this);
     }
@@ -72,7 +77,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     public void onDestroy() {
         super.onDestroy();
 
-        mLocationClient.disconnect();
+        mGoogleApiClient.disconnect();
         if(mViewGroup != null) windowManager.removeView(mViewGroup);
     }
 
@@ -84,12 +89,13 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "Location services connected");
-        mLocationClient.requestLocationUpdates(mLocationRequest, this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override
-    public void onDisconnected() {
-        Log.d(TAG, "Location services disconnected");
+    public void onConnectionSuspended(int cause) {
+        Log.w(TAG, "Google API client connection suspended - cause " + cause);
+        if(!mGoogleApiClient.isConnecting()) mGoogleApiClient.connect();
     }
 
     @Override
@@ -124,8 +130,7 @@ public class SpoopService extends Service implements GooglePlayServicesClient.Co
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.w(TAG, "Location services failed to connect");
-        Toast.makeText(this, "Location services failed", Toast.LENGTH_LONG).show();
+        Log.e(TAG, "Location services failed to connect. Error code " + connectionResult.getErrorCode());
     }
 
     /**
