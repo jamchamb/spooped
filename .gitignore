@@ -1,6 +1,34 @@
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# built native files
+*.o
+*.so
+
+# generated files
+build/
+app/build/
+gen/
+out/
+
+# Gradle cache
+.gradle/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# IDEA/Android Studio project files, because
+# the project can be imported from settings.gradle
+.idea/
+*.iml
+
+# Old-style IDEA project files
+*.ipr
+*.iws
