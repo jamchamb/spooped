@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -53,11 +54,11 @@ public class CreateGhostFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_create_ghost, container, false);
+        final View v = inflater.inflate(R.layout.fragment_create_ghost, container, false);
 
         mSpiritRealm = new SpiritRealm(getActivity());
 
-        ArrayList<String> ghostList = new ArrayList<String>();
+        final ArrayList<String> ghostList = new ArrayList<String>();
         ghostList.add("ghost_one_teal");
         ghostList.add("ghost_two_purple");
         ghostList.add("ghost_three_yellow");
@@ -76,8 +77,8 @@ public class CreateGhostFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Make sure username and ghost name are set
-                if(nameEditText.getText().toString().isEmpty() || userEditText.getText().toString().isEmpty()) {
-                    Toast.makeText(getActivity(), "Set both names!", Toast.LENGTH_SHORT).show();
+                if(nameEditText.getText().toString().trim().isEmpty() || userEditText.getText().toString().trim().isEmpty()) {
+                    Toast.makeText(getActivity(), R.string.create_missing_name, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -86,8 +87,8 @@ public class CreateGhostFragment extends Fragment {
                     Location lastLocation = mLocationProvider.getLastLocation();
                     if(lastLocation != null) {
                         Ghost newGhost = new Ghost();
-                        newGhost.setName(nameEditText.getText().toString());
-                        newGhost.setUser(userEditText.getText().toString());
+                        newGhost.setName(nameEditText.getText().toString().trim());
+                        newGhost.setUser(userEditText.getText().toString().trim());
                         newGhost.setDrawable(pagerAdapter.getGhostName(viewPager.getCurrentItem()));
                         newGhost.setLocation(lastLocation);
 
@@ -106,12 +107,12 @@ public class CreateGhostFragment extends Fragment {
                         }).fail(new FailCallback<Exception>() {
                             @Override
                             public void onFail(Exception exception) {
-                                Toast.makeText(getActivity(), "Oops! Network problem.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), R.string.error_network, Toast.LENGTH_SHORT).show();
                                 Log.w(TAG, exception.getMessage());
                             }
                         });
                     } else {
-                        Toast.makeText(getActivity(), "Couldn't get location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.error_location, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -130,10 +131,9 @@ public class CreateGhostFragment extends Fragment {
 
         private ArrayList<String> mGhostList;
 
-        public GhostPagerAdapter(FragmentManager fm, ArrayList<String> ghostList) {
+        public GhostPagerAdapter(FragmentManager fm, @NonNull ArrayList<String> ghostList) {
             super(fm);
-            if(ghostList != null) mGhostList = ghostList;
-            else mGhostList = new ArrayList<String>();
+            mGhostList = ghostList;
         }
 
         public String getGhostName(int position) {
@@ -142,16 +142,7 @@ public class CreateGhostFragment extends Fragment {
 
         @Override
         public Fragment getItem(int i) {
-            Fragment fragment = new GhostImageFragment();
-            Bundle args = new Bundle();
-
-            String ghosty = mGhostList.get(i);
-            if(ghosty != null) {
-                args.putString("ghost", ghosty);
-            }
-
-            fragment.setArguments(args);
-            return fragment;
+            return GhostImageFragment.newInstance(mGhostList.get(i));
         }
 
         @Override
@@ -161,25 +152,37 @@ public class CreateGhostFragment extends Fragment {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Ghost " + position;
+            return String.format(getString(R.string.create_frag_title), position);
         }
 
     }
 
     public static class GhostImageFragment extends Fragment {
 
+        private static final String ARG_GHOST_TAG = "ghost";
+
+        public GhostImageFragment() {}
+
+        public static GhostImageFragment newInstance(String ghostName) {
+            GhostImageFragment fragment = new GhostImageFragment();
+            Bundle args = new Bundle();
+            args.putString(ARG_GHOST_TAG, ghostName);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
             // The last two arguments ensure LayoutParams are inflated
             // properly.
-            View rootView = inflater.inflate(R.layout.ghost_view, container, false);
-            Bundle args = getArguments();
+            final View rootView = inflater.inflate(R.layout.ghost_view, container, false);
+            final Bundle args = getArguments();
 
             ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
 
-            if(args.getString("ghost") != null) {
-                int id = getResources().getIdentifier(args.getString("ghost"), "drawable", BuildConfig.PACKAGE_NAME);
+            if(args.getString(ARG_GHOST_TAG) != null) {
+                int id = getResources().getIdentifier(args.getString(ARG_GHOST_TAG), "drawable", BuildConfig.PACKAGE_NAME);
                 if (id != 0) {
                     Drawable drawable = getResources().getDrawable(id);
                     imageView.setImageDrawable(drawable);

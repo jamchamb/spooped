@@ -1,5 +1,7 @@
 package me.spoop.spoopdroid.items;
 
+import android.location.Location;
+
 /**
  * A spoopy little ghost.
  * @author James Chambers
@@ -10,9 +12,9 @@ public class Ghost {
     private String name;
     private String user;
     private String drawable;
-    private Location location;
+    private GhostLocation location;
 
-    private static class Location {
+    private static class GhostLocation {
         private String longitude;
         private String latitude;
 
@@ -65,15 +67,15 @@ public class Ghost {
         this.drawable = drawable;
     }
 
-    public android.location.Location getLocation() {
-        android.location.Location result = new android.location.Location("ghostData");
+    public Location getLocation() {
+        Location result = new Location("ghostData");
         result.setLongitude(Double.parseDouble(location.getLongitude()));
         result.setLatitude(Double.parseDouble(location.getLatitude()));
         return result;
     }
 
-    public void setLocation(android.location.Location location) {
-        this.location = new Location();
+    public void setLocation(Location location) {
+        this.location = new GhostLocation();
         this.location.setLatitude(location.getLatitude());
         this.location.setLongitude(location.getLongitude());
     }

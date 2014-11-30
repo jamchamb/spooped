@@ -5,9 +5,18 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <!-- Error messages -->
+    <string name="error_network">Oops! Network problem.</string>
+    <string name="error_location">Couldn\'t get location.</string>
+
     <!-- Ghost creation screen -->
     <string name="create_name_hint">Ghost\'s name</string>
     <string name="create_user_hint">Username</string>
     <string name="create_ghost_button">Create Ghost</string>
+    <string name="create_missing_name">Set both names!</string>
+    <string name="create_frag_title">Ghost %1$d</string>
+
+    <!-- Ghost pop-up -->
+    <string name="spoop_message">%1$s by %2$s</string>
 
 </resources>

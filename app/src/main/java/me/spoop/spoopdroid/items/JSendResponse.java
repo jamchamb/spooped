@@ -5,8 +5,8 @@ package me.spoop.spoopdroid.items;
  */
 public class JSendResponse {
 
-    String status;
-    String message;
+    private String status;
+    private String message;
 
     public JSendResponse(String status, String message) {
         this.status = status;

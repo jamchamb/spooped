@@ -183,7 +183,7 @@ public class SpoopService extends Service implements
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        Toast.makeText(v.getContext(), ghost.getName() + " by " + ghost.getUser(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(v.getContext(), String.format(getString(R.string.spoop_message), ghost.getName(), ghost.getUser()), Toast.LENGTH_SHORT).show();
                         windowManager.removeView(mViewGroup);
                         mViewGroup = null;
                         return true;
