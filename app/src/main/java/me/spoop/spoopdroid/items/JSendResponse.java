@@ -6,11 +6,16 @@ package me.spoop.spoopdroid.items;
 public class JSendResponse {
 
     private String status;
-    private String message;
+    private JSendData data;
+
+    private static class JSendData {
+        String message;
+    }
 
     public JSendResponse(String status, String message) {
         this.status = status;
-        this.message = message;
+        this.data = new JSendData();
+        this.data.message = message;
     }
 
     public String getStatus() {
@@ -18,7 +23,7 @@ public class JSendResponse {
     }
 
     public String getMessage() {
-        return message;
+        return data.message;
     }
 
     public boolean succeeded() {

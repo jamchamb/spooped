@@ -116,12 +116,7 @@ public class SpoopService extends Service implements
 
                 // Check the ghosties. Display ones that haven't been seen before
                 for(Ghost ghost: ghosts) {
-                    if(BuildConfig.DEBUG) {
-                        Log.v(TAG, ghost.getName() + ": Distance " + location.distanceTo(ghost.getLocation()) +
-                                (mGhostCollection.get(ghost.getId()) != null ? " (seen)" : ""));
-                    }
-
-                    if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= NEARBY_METERS) {
+                    if(!mGhostCollection.containsKey(ghost.getId()) && location.distanceTo(ghost.getLocation()) <= NEARBY_METERS) {
                         Log.d(TAG, "Ghost within " + NEARBY_METERS + " meters; spooping!");
                         showGhost(ghost);
                         mGhostCollection.put(ghost.getId(), ghost);

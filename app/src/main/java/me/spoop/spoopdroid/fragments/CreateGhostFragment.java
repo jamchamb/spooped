@@ -20,17 +20,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-
 import java.util.ArrayList;
 
 import me.spoop.spoopdroid.Config;
 import me.spoop.spoopdroid.R;
-import me.spoop.spoopdroid.api.SpiritRealm;
+import me.spoop.spoopdroid.api.SpoopedAPI;
 import me.spoop.spoopdroid.items.Ghost;
 import me.spoop.spoopdroid.items.JSendResponse;
 import me.spoop.spoopdroid.items.LocationProvider;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 /**
  * Ghost creation screen
@@ -40,7 +41,7 @@ public class CreateGhostFragment extends Fragment {
     private static final String TAG = "CreateGhostFragment";
 
     private LocationProvider mLocationProvider;
-    private SpiritRealm mSpiritRealm;
+    private SpoopedAPI mSpiritRealm;
 
     public CreateGhostFragment() {
         // Required empty public constructor
@@ -56,7 +57,11 @@ public class CreateGhostFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_create_ghost, container, false);
 
-        mSpiritRealm = new SpiritRealm(getActivity());
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(Config.BASE_URL)
+                .build();
+
+        mSpiritRealm = restAdapter.create(SpoopedAPI.class);
 
         final ArrayList<String> ghostList = new ArrayList<>();
         ghostList.add("ghost_one_teal");
@@ -92,10 +97,10 @@ public class CreateGhostFragment extends Fragment {
                         newGhost.setDrawable(pagerAdapter.getGhostName(viewPager.getCurrentItem()));
                         newGhost.setLocation(lastLocation);
 
-                        mSpiritRealm.submitGhost(newGhost).done(new DoneCallback<JSendResponse>() {
+                        mSpiritRealm.submitGhost(newGhost, new Callback<JSendResponse>() {
                             @Override
-                            public void onDone(JSendResponse result) {
-                                if(result.succeeded()) {
+                            public void success(JSendResponse result, Response response) {
+                                if (result.succeeded()) {
                                     Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
                                     nameEditText.setText(null);
                                     userEditText.setText(null);
@@ -104,11 +109,11 @@ public class CreateGhostFragment extends Fragment {
                                     Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             }
-                        }).fail(new FailCallback<Exception>() {
+
                             @Override
-                            public void onFail(Exception exception) {
+                            public void failure(RetrofitError error) {
                                 Toast.makeText(getActivity(), R.string.error_network, Toast.LENGTH_SHORT).show();
-                                Log.w(TAG, exception.getMessage());
+                                Log.w(TAG, error.getMessage());
                             }
                         });
                     } else {
