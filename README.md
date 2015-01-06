@@ -6,9 +6,8 @@ Originally created for HackRU Fall 2014.
 
 ## Libraries Used
 * [GSON](https://code.google.com/p/google-gson/)
-* [Android Query](https://code.google.com/p/android-query/)
-* [JDeferred](https://github.com/jdeferred/jdeferred)
-* [SLF4J](http://www.slf4j.org/)
+* [Retrofit](http://square.github.io/retrofit/)
+* [OkHttp](http://square.github.io/okhttp/)
 
 #### Authors
 Code by James Chambers.
