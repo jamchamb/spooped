@@ -25,7 +25,7 @@ import org.jdeferred.FailCallback;
 
 import java.util.ArrayList;
 
-import me.spoop.spoopdroid.BuildConfig;
+import me.spoop.spoopdroid.Config;
 import me.spoop.spoopdroid.R;
 import me.spoop.spoopdroid.api.SpiritRealm;
 import me.spoop.spoopdroid.items.Ghost;
@@ -58,7 +58,7 @@ public class CreateGhostFragment extends Fragment {
 
         mSpiritRealm = new SpiritRealm(getActivity());
 
-        final ArrayList<String> ghostList = new ArrayList<String>();
+        final ArrayList<String> ghostList = new ArrayList<>();
         ghostList.add("ghost_one_teal");
         ghostList.add("ghost_two_purple");
         ghostList.add("ghost_three_yellow");
@@ -182,7 +182,7 @@ public class CreateGhostFragment extends Fragment {
             ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
 
             if(args.getString(ARG_GHOST_TAG) != null) {
-                int id = getResources().getIdentifier(args.getString(ARG_GHOST_TAG), "drawable", BuildConfig.PACKAGE_NAME);
+                int id = getResources().getIdentifier(args.getString(ARG_GHOST_TAG), "drawable", Config.PACKAGE_NAME);
                 if (id != 0) {
                     Drawable drawable = getResources().getDrawable(id);
                     imageView.setImageDrawable(drawable);

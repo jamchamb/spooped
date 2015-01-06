@@ -3,11 +3,14 @@ package me.spoop.spoopdroid.api;
 import android.content.Context;
 import android.util.Log;
 
-import com.androidquery.AQuery;
-import com.androidquery.callback.AjaxCallback;
-import com.androidquery.callback.AjaxStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DeferredObject;
@@ -15,11 +18,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import me.spoop.spoopdroid.Config;
 import me.spoop.spoopdroid.items.Ghost;
 import me.spoop.spoopdroid.items.JSendResponse;
 
@@ -31,21 +34,19 @@ public class SpiritRealm {
 
     private final static String TAG = "SpiritRealm";
 
-    private final static String BASE_URL = "http://spoop.me/";
-
     private final static int CACHE_NEVER = -1; // refreshes cache
     private final static int CACHE_ONE_MINUTE = 1000 * 60;
     private final static int CACHE_ONE_HOUR = CACHE_ONE_MINUTE * 60;
     private final static int CACHE_ONE_DAY = CACHE_ONE_HOUR * 24;
 
     private Context mContext;
-    private AQuery mAQ;
+    private OkHttpClient mHttpClient;
     private Gson mGson;
 
     public SpiritRealm(Context context) {
-        this.mContext = context;
-        this.mAQ = new AQuery(context);
-        this.mGson = new Gson();
+        mContext = context;
+        mHttpClient = new OkHttpClient();
+        mGson = new Gson();
     }
 
     /**
@@ -55,40 +56,41 @@ public class SpiritRealm {
     public Promise<List<Ghost>, Exception, Void> getGhosts() {
         final DeferredObject<List<Ghost>, Exception, Void> deferred = new DeferredObject<List<Ghost>, Exception, Void>();
 
-        mAQ.ajax(BASE_URL + "ghosts.php", JSONObject.class, SpiritRealm.CACHE_NEVER, new AjaxCallback<JSONObject>() {
+        Request request = new Request.Builder()
+                .url(Config.BASE_URL + "ghosts.php")
+                .build();
+
+        mHttpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void callback(String url, JSONObject json, AjaxStatus ajaxStatus) {
-                if (json == null) {
-                    // Bad response, don't cache it
-                    ajaxStatus.invalidate();
-                    deferred.reject(new Exception(ajaxStatus.getMessage()));
-                } else {
-                    // Got a JSON response
-                    try {
-                        // Get JSend response status
-                        String status = json.getString("status");
-                        if (status.equals("success")) {
-                            JSONArray ghosts = json.getJSONObject("data").getJSONArray("ghosts");
-                            ArrayList<Ghost> ghostResults = new ArrayList<Ghost>(ghosts.length());
+            public void onFailure(Request request, IOException e) {
+                deferred.reject(e);
+            }
 
-                            // Convert the ghost JSON array to a list of native ghost objects
-                            for (int i = 0; i < ghosts.length(); i++) {
-                                Ghost curGhost = mGson.fromJson(ghosts.getJSONObject(i).toString(), Ghost.class);
-                                ghostResults.add(curGhost);
-                            }
+            @Override
+            public void onResponse(Response response) throws IOException {
+                try {
+                    JSONObject json = new JSONObject(response.body().string());
 
-                            // Resolve with the native ghost list
-                            deferred.resolve(ghostResults);
-                        } else {
-                            deferred.reject(new Exception("server response: " + status));
+                    // Get JSend response status
+                    String status = json.getString("status");
+                    if (status.equals("success")) {
+                        JSONArray ghosts = json.getJSONObject("data").getJSONArray("ghosts");
+                        ArrayList<Ghost> ghostResults = new ArrayList<Ghost>(ghosts.length());
+
+                        // Convert the ghost JSON array to a list of native ghost objects
+                        for (int i = 0; i < ghosts.length(); i++) {
+                            Ghost curGhost = mGson.fromJson(ghosts.getJSONObject(i).toString(), Ghost.class);
+                            ghostResults.add(curGhost);
                         }
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.getMessage());
-                        deferred.reject(e);
-                    } catch (JsonSyntaxException e) {
-                        Log.e(TAG, e.getMessage());
-                        deferred.reject(e);
+
+                        // Resolve with the native ghost list
+                        deferred.resolve(ghostResults);
+                    } else {
+                        deferred.reject(new Exception("server response: " + status));
                     }
+                } catch (JSONException | JsonSyntaxException e) {
+                    Log.e(TAG, e.getMessage());
+                    deferred.reject(e);
                 }
             }
         });
@@ -106,45 +108,47 @@ public class SpiritRealm {
         final DeferredObject<List<Ghost>, Exception, Void> deferred = new DeferredObject<List<Ghost>, Exception, Void>();
 
         // Set up POST parameters
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("longitude", Double.toString(longitude));
-        params.put("latitude", Double.toString(latitude));
+        RequestBody params = new FormEncodingBuilder()
+                .add("longitude", Double.toString(longitude))
+                .add("latitude", Double.toString(latitude))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(Config.BASE_URL + "loc_query.php")
+                .post(params)
+                .build();
 
         // Make the POST request and get JSend response
-        mAQ.ajax(BASE_URL + "loc_query.php", params, JSONObject.class, new AjaxCallback<JSONObject>() {
+        mHttpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void callback(String url, JSONObject json, AjaxStatus ajaxStatus) {
-                if (json == null) {
-                    // Bad response, don't cache it
-                    ajaxStatus.invalidate();
-                    deferred.reject(new Exception(ajaxStatus.getMessage()));
-                } else {
-                    // Got a JSON response
-                    try {
-                        // Get JSend response status
-                        String status = json.getString("status");
-                        if (status.equals("success")) {
-                            JSONArray ghosts = json.getJSONObject("data").getJSONArray("ghosts");
-                            ArrayList<Ghost> ghostResults = new ArrayList<Ghost>(ghosts.length());
+            public void onFailure(Request request, IOException e) {
+                deferred.reject(e);
+            }
 
-                            // Convert the ghost JSON array to a list of native ghost objects
-                            for (int i = 0; i < ghosts.length(); i++) {
-                                Ghost curGhost = mGson.fromJson(ghosts.getJSONObject(i).toString(), Ghost.class);
-                                ghostResults.add(curGhost);
-                            }
+            @Override
+            public void onResponse(Response response) throws IOException {
+                try {
+                    JSONObject json = new JSONObject(response.body().string());
+                    // Get JSend response status
+                    String status = json.getString("status");
+                    if (status.equals("success")) {
+                        JSONArray ghosts = json.getJSONObject("data").getJSONArray("ghosts");
+                        ArrayList<Ghost> ghostResults = new ArrayList<Ghost>(ghosts.length());
 
-                            // Resolve with the native ghost list
-                            deferred.resolve(ghostResults);
-                        } else {
-                            deferred.reject(new Exception("server response: " + status));
+                        // Convert the ghost JSON array to a list of native ghost objects
+                        for (int i = 0; i < ghosts.length(); i++) {
+                            Ghost curGhost = mGson.fromJson(ghosts.getJSONObject(i).toString(), Ghost.class);
+                            ghostResults.add(curGhost);
                         }
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.getMessage());
-                        deferred.reject(e);
-                    } catch (JsonSyntaxException e) {
-                        Log.e(TAG, e.getMessage());
-                        deferred.reject(e);
+
+                        // Resolve with the native ghost list
+                        deferred.resolve(ghostResults);
+                    } else {
+                        deferred.reject(new Exception("server response: " + status));
                     }
+                } catch (JSONException | JsonSyntaxException e) {
+                    Log.e(TAG, e.getMessage());
+                    deferred.reject(e);
                 }
             }
         });
@@ -161,30 +165,36 @@ public class SpiritRealm {
         final DeferredObject<JSendResponse, Exception, Void> deferred = new DeferredObject<JSendResponse, Exception, Void>();
 
         // Set up POST parameters
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("name", ghost.getName());
-        params.put("user", ghost.getUser());
-        params.put("drawable", ghost.getDrawable());
-        params.put("longitude", ghost.getLocation().getLongitude());
-        params.put("latitude", ghost.getLocation().getLatitude());
+        RequestBody params = new FormEncodingBuilder()
+            .add("name", ghost.getName())
+            .add("user", ghost.getUser())
+            .add("drawable", ghost.getDrawable())
+            .add("longitude", Double.toString(ghost.getLocation().getLongitude()))
+            .add("latitude", Double.toString(ghost.getLocation().getLatitude()))
+            .build();
+
+        Request request = new Request.Builder()
+                .url(Config.BASE_URL + "add_ghost.php")
+                .post(params)
+                .build();
 
         // Make the POST request and get JSend response
-        mAQ.ajax(BASE_URL + "add_ghost.php", params, JSONObject.class, new AjaxCallback<JSONObject>() {
-
+        mHttpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void callback(String url, JSONObject json, AjaxStatus status) {
-                if (json == null) {
-                    deferred.reject(new Exception(status.getMessage()));
-                } else {
-                    try {
-                        JSendResponse response = new JSendResponse(json.getString("status"), json.getJSONObject("data").getString("message"));
-                        deferred.resolve(response);
-                    } catch (JSONException e) {
-                        deferred.reject(e);
-                    }
-                }
+            public void onFailure(Request request, IOException e) {
+                deferred.reject(e);
             }
 
+            @Override
+            public void onResponse(Response response) throws IOException {
+                try {
+                    JSONObject json = new JSONObject(response.body().string());
+                    JSendResponse jSendResponse = new JSendResponse(json.getString("status"), json.getJSONObject("data").getString("message"));
+                    deferred.resolve(jSendResponse);
+                } catch (JSONException e) {
+                    deferred.reject(e);
+                }
+            }
         });
 
         return deferred.promise();

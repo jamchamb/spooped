@@ -26,13 +26,15 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.jdeferred.DoneCallback;
-
 import java.util.HashMap;
 import java.util.List;
 
-import me.spoop.spoopdroid.api.SpiritRealm;
+import me.spoop.spoopdroid.api.SpoopedAPI;
 import me.spoop.spoopdroid.items.Ghost;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class SpoopService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
@@ -42,12 +44,12 @@ public class SpoopService extends Service implements
 
     private final static int NEARBY_METERS = 25;
 
-    private SpiritRealm mSpiritRealm;
+    private SpoopedAPI mSpiritRealm;
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private WindowManager windowManager;
     private ViewGroup mViewGroup;
-    private HashMap<String, Ghost> mGhostCollection = new HashMap<String, Ghost>();
+    private HashMap<String, Ghost> mGhostCollection = new HashMap<>();
 
     public SpoopService() {}
 
@@ -70,7 +72,12 @@ public class SpoopService extends Service implements
         // Connect to location services & start getting location updates
         mGoogleApiClient.connect();
 
-        mSpiritRealm = new SpiritRealm(this);
+        // Set up API
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(Config.BASE_URL)
+                .build();
+
+        mSpiritRealm = restAdapter.create(SpoopedAPI.class);
     }
 
     @Override
@@ -102,19 +109,18 @@ public class SpoopService extends Service implements
     public void onLocationChanged(final Location location) {
         Log.d(TAG, "Location changed: " + location.toString());
 
-        mSpiritRealm.getGhosts(location.getLongitude(), location.getLatitude()).done(new DoneCallback<List<Ghost>>() {
+        mSpiritRealm.getGhosts(Double.toString(location.getLongitude()), Double.toString(location.getLatitude()), new Callback<List<Ghost>>() {
             @Override
-            public void onDone(List<Ghost> ghostList) {
-                if(BuildConfig.DEBUG) {
-                    Log.d(TAG, "Got " + ghostList.size() + " ghosts in range");
-                    for(Ghost ghost: ghostList) {
+            public void success(List<Ghost> ghosts, Response response) {
+                Log.i(TAG, "Got " + ghosts.size() + " ghosts in range");
+
+                // Check the ghosties. Display ones that haven't been seen before
+                for(Ghost ghost: ghosts) {
+                    if(BuildConfig.DEBUG) {
                         Log.v(TAG, ghost.getName() + ": Distance " + location.distanceTo(ghost.getLocation()) +
                                 (mGhostCollection.get(ghost.getId()) != null ? " (seen)" : ""));
                     }
-                }
 
-                // Check the ghosties. Display ones that haven't been seen before
-                for(Ghost ghost: ghostList) {
                     if(mGhostCollection.get(ghost.getId()) == null && location.distanceTo(ghost.getLocation()) <= NEARBY_METERS) {
                         Log.d(TAG, "Ghost within " + NEARBY_METERS + " meters; spooping!");
                         showGhost(ghost);
@@ -122,7 +128,11 @@ public class SpoopService extends Service implements
                         break;
                     }
                 }
+            }
 
+            @Override
+            public void failure(RetrofitError error) {
+                Log.e(TAG, error.getMessage());
             }
         });
 
@@ -139,7 +149,7 @@ public class SpoopService extends Service implements
      */
     private void showGhost(final Ghost ghost) {
         // Pick ghost to display
-        int resId = getResources().getIdentifier(ghost.getDrawable(), "drawable", BuildConfig.PACKAGE_NAME);
+        int resId = getResources().getIdentifier(ghost.getDrawable(), "drawable", Config.PACKAGE_NAME);
         if(resId == 0) resId = R.drawable.ghost_one_teal;
 
         // Display the ghost
