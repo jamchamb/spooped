@@ -1,5 +1,7 @@
 spooped
 =======
+![Ghost](https://spoop.me/ghost_four.png)
+
 An Android app that lets you haunt locations with spoopy ghosts. Create a ghost, and then when another user passes by it, it will haunt their phone!
 
 Originally created for HackRU Fall 2014.
